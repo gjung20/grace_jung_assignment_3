@@ -1,0 +1,158 @@
+@font-face {
+    font-family: 'Dogica';
+    src: url('assets/fonts/dogica.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap; /* Optional: improves loading behavior */
+  }
+
+.pixelfy-sans {
+    font-family: "Pixelify Sans", sans-serif;
+    font-optical-sizing: auto;
+}
+
+.dogica {
+    font-family: "Dogica", sans-serif;
+    font-optical-sizing: auto;
+}
+
+.jersey-10-regular {
+    font-family: "Jersey 10", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: 0.05em;
+  }
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+}
+
+/* ===== CARD STYLES ===== */
+.card {
+    perspective: 1000px;
+    aspect-ratio: 1;
+    width: 100%;
+    max-width: 150px;
+    margin: 0 auto;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s ease;
+    transform-style: preserve-3d;
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+/* Front of Card (Pokémon Image) */
+.card-front {
+    background-image: url('assets/images/pokecard-blank.svg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    transform: rotateY(180deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8%;
+    box-sizing: border-box;
+}
+
+.card-front img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+/* Back of Card (Full Image) */
+.card-back {
+    background-image: url('assets/images/pokecard-back.svg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* ===== GAME STATES ===== */
+.card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.powerup-active .card-inner {
+    transform: rotateY(180deg) !important;
+    transition: transform 0.3s !important;
+}
+
+/* ===== GAME CONTAINER ===== */
+#game-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-rows: auto;
+    padding: 12px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    gap: 1vmin;
+    width: 100%;
+    height: 530px; /* Adjust based on header height */
+    overflow-y: hidden;
+    box-sizing: border-box;
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+@media (max-width: 768px) {
+    #game-container {
+        gap: 10px;
+        padding: 10px;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    #game-container {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    }
+}
+
+@media (max-width: 400px) {
+    #game-container {
+        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+        gap: 8px;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes  animate-bg {
+    100% {
+      background-position: 500px 500px;
+    }
+  }
+
+  /* Popup Styles */
+.hidden {
+  display: none;
+}
+
+#result-popup {
+  backdrop-filter: blur(5px);
+  transition: opacity 0.3s ease;
+}
+
+#result-popup > div {
+  animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

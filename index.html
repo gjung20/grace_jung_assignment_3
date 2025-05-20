@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Memory Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dogica transition-colors duration-300 bg-blue-500 dark:bg-indigo-900">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center">
+            <h1 class="jersey-10-regular text-4xl text-gray-800 dark:text-white">Pokémon Memory Game</h1>
+        </header>
+
+        <main class="flex flex-col md:flex-row gap-4 p-4">
+            <!-- Button Stack (Left Side) -->
+            <div class="flex flex-col self-center space-y-4 w-full md:w-auto">
+                <button id="start-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition w-full md:w-40">
+                    Start Game
+                </button>
+                <button id="reset-btn" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition w-full md:w-40">
+                    Reset
+                </button>
+                <select id="difficulty" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 dark:text-white rounded w-full md:w-40">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <button id="theme-toggle" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition w-full md:w-40">
+                    Dark Mode
+                </button>
+                <button id="powerup-btn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition w-full md:w-40">
+                    Power Up
+                </button>
+            </div>
+        
+            <!-- Game Area (Right Side) -->
+            <div class="flex-1">
+                            <div id="status" class="grid grid-cols-4 gap-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-4">
+                <div class="text-center">
+                    <p class="font-semibold text-gray-600 dark:text-gray-300">Time Left</p>
+                    <p id="timer" class="text-xl font-bold text-gray-800 dark:text-white">0</p>
+                </div>
+                <div class="text-center">
+                    <p class="font-semibold text-gray-600 dark:text-gray-300">Clicks</p>
+                    <p id="clicks" class="text-xl font-bold text-gray-800 dark:text-white">0</p>
+                </div>
+                <div class="text-center">
+                    <p class="font-semibold text-gray-600 dark:text-gray-300">Matches</p>
+                    <p id="matches" class="text-xl font-bold text-gray-800 dark:text-white">0/0</p>
+                </div>
+                <div class="text-center">
+                    <p class="font-semibold text-gray-600 dark:text-gray-300">Pairs Left</p>
+                    <p id="pairs-left" class="text-xl font-bold text-gray-800 dark:text-white">0</p>
+                </div>
+            </div>
+                <div id="game-container" class="flex flex-wrap justify-center content-center gap-4"></div>
+                <div id="message" class="text-center text-2xl font-bold text-gray-800 dark:text-white mt-4"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Game Result Popup -->
+<div id="result-popup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 shadow-xl transform transition-all">
+      <h2 id="popup-title" class="text-2xl font-bold mb-4 text-center"></h2>
+      <div id="popup-content" class="mb-6 text-center text-gray-800 dark:text-white">
+        <p>Pairs Matched: <span id="popup-pairs" class="font-bold"></span></p>
+        <p>Total Clicks: <span id="popup-clicks" class="font-bold"></span></p>
+        <p>Time Remaining: <span id="popup-time" class="font-bold"></span>s</p>
+      </div>
+      <div class="flex justify-center">
+        <button id="popup-close" class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+          Play Again
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
