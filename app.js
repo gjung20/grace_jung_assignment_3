@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     // Game state variables
     let cards = [];
     let flippedCards = [];
@@ -12,9 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // DOM elements
     const gameContainer = document.getElementById('game-container');
-    const startBtn = document.getElementById('start-btn');
-    const resetBtn = document.getElementById('reset-btn');
-    const difficultySelect = document.getElementById('difficulty');
+    const easyBtn = document.getElementById('easy-btn');
+    const mediumBtn = document.getElementById('medium-btn');
+    const hardBtn = document.getElementById('hard-btn');
     const themeToggle = document.getElementById('theme-toggle');
     const powerupBtn = document.getElementById('powerup-btn');
     const timerDisplay = document.getElementById('timer');
@@ -28,22 +29,85 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupClicks = document.getElementById('popup-clicks');
     const popupTime = document.getElementById('popup-time');
     const popupClose = document.getElementById('popup-close');
+    const gameControlBtn = document.getElementById('game-control-btn');
 
     // Difficulty settings
+
+    // Track current difficulty
+    let currentDifficulty = 'easy'; // Default to easy
+
+    // Initialize difficulty buttons
+    function initDifficultyButtons() {
+        // Set initial active button
+        updateDifficultyButtons();
+
+        // Add event listeners
+        easyBtn.addEventListener('click', () => setDifficulty('easy'));
+        mediumBtn.addEventListener('click', () => setDifficulty('medium'));
+        hardBtn.addEventListener('click', () => setDifficulty('hard'));
+    }
+
+    function setDifficulty(difficulty) {
+        currentDifficulty = difficulty;
+        updateDifficultyButtons();
+
+        // If game is active, reset with new difficulty
+        if (gameActive) {
+            resetGame();
+        }
+    }
+
+    function updateDifficultyButtons() {
+        // Reset all buttons
+        easyBtn.classList.remove('ring-2', 'ring-white', 'ring-offset-2');
+        mediumBtn.classList.remove('ring-2', 'ring-white', 'ring-offset-2');
+        hardBtn.classList.remove('ring-2', 'ring-white', 'ring-offset-2');
+        
+        // Highlight active button
+        switch(currentDifficulty) {
+            case 'easy':
+                easyBtn.classList.add('ring-2', 'ring-white', 'ring-offset-2');
+                break;
+            case 'medium':
+                mediumBtn.classList.add('ring-2', 'ring-white', 'ring-offset-2');
+                break;
+            case 'hard':
+                hardBtn.classList.add('ring-2', 'ring-white', 'ring-offset-2');
+                break;
+        }
+    }
+
     const difficultySettings = {
-        easy: { pairs: 6, time: 90 },
-        medium: { pairs: 9, time: 90 },
-        hard: { pairs: 12, time: 90 },
+        easy: { 
+            pairs: 6, 
+            time: 90,
+            color: 'green-500' 
+        },
+        medium: { 
+            pairs: 9, 
+            time: 90,
+            color: 'yellow-500'
+        },
+        hard: { 
+            pairs: 12, 
+            time: 90,
+            color: 'red-500'
+        }
     };
 
-    // Initialize game
-    initGame();
+    // Initialize theme
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme') ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
-    // Event listeners
-    startBtn.addEventListener('click', startGame);
-    resetBtn.addEventListener('click', resetGame);
-    themeToggle.addEventListener('click', toggleTheme);
-    powerupBtn.addEventListener('click', activatePowerUp);
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+            themeToggle.textContent = 'Light Mode';
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggle.textContent = 'Dark Mode';
+        }
+    }
 
     // Initialize game state
     function initGame() {
@@ -53,18 +117,32 @@ document.addEventListener('DOMContentLoaded', () => {
         clickCount = 0;
         flippedCards = [];
         updateStatus();
+        updateButtonState(); // Update button on init
     }
+
+    function updateButtonState() {
+        if (gameActive) {
+            gameControlBtn.textContent = 'Reset';
+            gameControlBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            gameControlBtn.classList.add('bg-red-500', 'hover:bg-red-600');
+        } else {
+            gameControlBtn.textContent = 'Start Game';
+            gameControlBtn.classList.remove('bg-red-500', 'hover:bg-red-600');
+            gameControlBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+        }
+    }
+
 
     // Start a new game
     async function startGame() {
         if (gameActive) return;
 
         gameActive = true;
+        updateButtonState();
         initGame();
 
-        const difficulty = difficultySelect.value;
-        totalPairs = difficultySettings[difficulty].pairs;
-        timeLeft = difficultySettings[difficulty].time;
+        totalPairs = difficultySettings[currentDifficulty].pairs;
+        timeLeft = difficultySettings[currentDifficulty].time;
 
         // Clear any existing timer
         if (timer) clearInterval(timer);
@@ -92,10 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset the current game
     function resetGame() {
         if (!gameActive) return;
-
+        
         clearInterval(timer);
         gameActive = false;
-        startGame();
+        updateButtonState();
+        initGame(); // Just reset, don't auto-start
     }
 
     // Fetch Pokémon data from API
@@ -149,9 +228,10 @@ document.addEventListener('DOMContentLoaded', () => {
             shuffleCards();
 
         } catch (error) {
-            console.error('Error fetching Pokémon data:', error);
-            messageDisplay.textContent = 'Error loading Pokémon data. Please try again.';
-            gameActive = false;
+            console.error('Error:', error);
+            messageDisplay.textContent = 'Failed to load Pokémon. Retrying...';
+            // Auto-retry after delay
+            setTimeout(() => fetchPokemonData(pairsNeeded), 2000);
         }
     }
 
@@ -183,13 +263,14 @@ document.addEventListener('DOMContentLoaded', () => {
             pokemonImage.alt = card.name;
             pokemonImage.loading = 'lazy'; // Better performance
 
-            // In createCards():
+            pokemonImage.onerror = () => { 
+                // Fallback if image fails to load
+                pokemonImage.src = 'assets/images/fallback.png';
+            }
+
             const cardBack = document.createElement('div');
             cardBack.className = 'card-back';
-            // const backImage = document.createElement('img');
-            // backImage.src = 'assets/images/pokecard-back.svg';
-            // backImage.style.width = '100%';
-            // cardBack.appendChild(backImage);
+
 
             cardFront.appendChild(pokemonImage);
             cardInner.appendChild(cardBack);
@@ -268,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
 
+
     // Gameover
     function gameOver(win) {
         gameActive = false;
@@ -309,15 +391,42 @@ document.addEventListener('DOMContentLoaded', () => {
         pairsLeftDisplay.textContent = totalPairs - matchedPairs;
     }
 
-    // Toggle between light and dark theme
     function toggleTheme() {
         const html = document.documentElement;
-        if (html.classList.contains('dark')) {
-            html.classList.remove('dark');
-            themeToggle.textContent = 'Dark Mode';
-        } else {
-            html.classList.add('dark');
+        const isDark = html.classList.toggle('dark');
+
+        themeToggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    // Add this initialization function
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme') ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
             themeToggle.textContent = 'Light Mode';
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggle.textContent = 'Dark Mode';
         }
     }
+
+    // Event listeners
+    themeToggle.addEventListener('click', toggleTheme);
+    powerupBtn.addEventListener('click', activatePowerUp);
+    gameControlBtn.addEventListener('click', () => {
+        gameActive ? resetGame() : startGame();
+    });
+    popupClose.addEventListener('click', () => {
+        resultPopup.classList.add('hidden');
+        resetGame();
+    });
+
+    // Initialization
+    initTheme();
+    initDifficultyButtons();
+    initGame();
+
 });
